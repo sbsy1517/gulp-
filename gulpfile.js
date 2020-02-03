@@ -1,35 +1,58 @@
 var gulp = require('gulp');
-var jade = require('gulp-jade');
-var sass = require('gulp-sass');
-var pug = require('gulp-pug');
+const $ = require('gulp-load-plugins')();
+// var jade = require('gulp-jade');
+// var sass = require('gulp-sass');
+// var pug = require('gulp-pug');
+// var plumber = require('gulp-plumber');
+// var postcss = require('gulp-postcss');
+var autoprefixer = require('autoprefixer');
 
 gulp.task('sass', function () {
   return gulp.src('./source/sass/**/*.sass')
-    .pipe(sass().on('error', sass.logError))
+    .pipe($.plumber())
+    .pipe($.sourcemaps.init())
+    .pipe($.sass().on('error', $.sass.logError))
+    //編譯完成css
+    
+    .pipe($.postcss([autoprefixer()])) // 直接引入 autoprefixer
+    .pipe($.sourcemaps.write('.'))
     .pipe(gulp.dest('./public/css'));
 });
-gulp.task('watch', function () {
-    return gulp.watch('./srouce/sass/**/*.sass', gulp.series('sass'));
-});
 
-gulp.task('sass-watch', function () {
-     gulp.watch('./source/sass/**/*.sass', ['sass']); 
-});
+gulp.task('babel', () =>
+  gulp.src('./source/js/**/*.js')
+    .pipe($.sourcemaps.init())
+    .pipe($.babel({
+        presets: ['@babel/env']
+    }))
+    .pipe($.concat('all.js'))
+    .pipe($.sourcemaps.write('.'))
+    .pipe(gulp.dest('./public/js'))
+);
 
 gulp.task('jade', function() {
     gulp.src('./source/*.jade')
-      .pipe(jade({
+      .pipe($.plumber())
+      .pipe($.jade({
         pretty: true
       }))
       .pipe(gulp.dest('./public/'))
 });
 
-// gulp.task('default',['jade','sass','watch']);
-
 gulp.task('pug', function () {           
   return gulp.src('./source/**/*.pug')  
-      .pipe(pug({
+      .pipe($.plumber())
+      .pipe($.pug({
           pretty: true              
       }))
       .pipe(gulp.dest('./public/'))  
 });
+
+gulp.task('watch', function () {
+  gulp.watch('./source/sass/**/*.sass', gulp.series('sass'));
+  gulp.watch('./source/**/*.pug', gulp.series('pug'));
+  gulp.watch('./source/**/*.jade', gulp.series('jade'));
+  gulp.watch('./source/js/**/*.js', gulp.series('babel'));
+});
+
+gulp.task('default',gulp.parallel('pug','sass','jade','babel','watch'));

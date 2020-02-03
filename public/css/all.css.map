@@ -1,0 +1,1 @@
+{"version":3,"sources":["all.sass"],"names":[],"mappings":"AAGA;EACI,UAAU;EACV,eAAe;EACf,kBAAkB,EAAA","file":"all.css","sourcesContent":["$color_black: #28282b;\n$color_blue: yellow;\n$color_grey: #e3e3e3;\nbody {\n    color: red;\n    font-size: 25px;\n    font-family: serif; }\n\n\n"]}
